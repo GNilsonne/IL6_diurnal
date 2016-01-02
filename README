@@ -1,7 +1,7 @@
 This repository contains the following files:
 
 Data from studies where individual participant data were not available:
-- IL6data.csv
+- IL6data.csv. These data were all estimated from the respective published papers.
 
 Data from studies where individual participant data were available
 - Sothern1995IndividualData.csv. These data were estimated from the published paper.
