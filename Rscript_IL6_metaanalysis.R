@@ -125,7 +125,7 @@ Axelsson2013ind$IL6_pgml.1[Axelsson2013ind$IL6_pgml.1 < 0.9] <- 0.9 # Values bel
 Axelsson2013Data <- aggregate(Axelsson2013ind$IL6_pgml.1, list(Hour = Axelsson2013ind$Hour), mean)
 names(Axelsson2013Data) <- c("Hour", "IL6_pgml.1")
 Axelsson2013Data$lnIL6 <- aggregate(log(Axelsson2013ind$IL6_pgml.1), list(Hour = Axelsson2013ind$Hour), mean)$x
-Axelsson2013Data$Study <- "Axelsson2013"
+Axelsson2013Data$Study <- "Karshikoff2015"
 #Axelsson2013Data$Condition <- "Baseline"
 #Axelsson2013Data$PSD_Sleepduration <- NA
 Axelsson2013Data$Day <- c(1, 1, 1, 1)
@@ -143,7 +143,7 @@ IL6ind <- rbind(Sothern1995ind, Knudsen2008ind, Lekander2013ind, Axelsson2013ind
 IL6ind <- IL6ind[IL6ind$Study != "Lekander2013PSD", ]
 
 IL6_data <- rbind(IL6_data, Sothern1995Data, Knudsen2008Data, Lekander2013Data, Axelsson2013Data)
-
+IL6_data$Study[IL6_data$Study == "Axelsson2013"] <- "Karshikoff2015"
 
 ###########################
 # ANALYSE GROUP DATA
@@ -189,11 +189,27 @@ while (max(IL6_data$Hour24) > 24){
   IL6_data$Hour24[IL6_data$Hour24 > 24] <- IL6_data$Hour24[IL6_data$Hour24 > 24] - 24
 }
 IL6_data$TimeAsleep[is.na(IL6_data$TimeAsleep)] <- 0
+IL6_data$TimeAwake[is.na(IL6_data$TimeAwake)] <- 0
 
 # Build models
 ModelNull <- lme(lnIL6 ~ TimeFromCatheter_h, data = IL6_data, weights = ~ 1/sqw, random = ~ TimeFromCatheter_h|Study, na.action = na.omit)
 summary(ModelNull)
-plot(ModelNull, resid(., type = "p") ~ Hour, abline = 0)
+plot(ModelNull, resid(., type = "p") ~ Hour24, abline = 0)
+residualsNull <- ModelNull$residuals
+
+# Plot residuals from null model
+pdf("Fig_residuals_null.pdf")
+plot(residualsNull[, 2] ~ IL6_data$Hour24, frame.plot = F, xlab = "Time (h)", ylab = "ln IL-6, pg/ml, residual", type = "n", xlim = c(0, 28), xaxt = "n", yaxt = "n", cex.lab = 1.5)
+rect(-2, -5, 7, 40, col = "Misty Rose", border = NA)
+rect(22, -5, 31, 40, col = "Misty Rose", border = NA)
+axis(side = 1, at = c(0, 6, 12, 18, 24), labels = c("00:00", "06:00", "12:00", "18:00", "24:00"), cex.axis = 1.5)
+axis(2, at = c(-3, -2, -1, 0, 1, 2, 3), cex.axis = 1.5)
+abline(h = 0, col = "blue")
+points(residualsNull[, 2] ~ IL6_data$Hour24, cex = 2*sqrt(IL6_data$sqw/pi))
+lo <- loess(residualsNull[, 2] ~ IL6_data$Hour24, weights = IL6_data$sqw)
+pred <- predict(lo, seq(0, 24, 0.5), se=TRUE)
+lines(pred$fit~ seq(0, 24, 0.5), col = "red", lwd = 2)
+dev.off()
 
 Model24 <- lme(lnIL6 ~ SinHour + CosHour + TimeFromCatheter_h, data = IL6_data, weights = ~ 1/sqw, random = ~ TimeFromCatheter_h|Study)
 summary(Model24)
@@ -212,9 +228,9 @@ p_24vs12 <- 1 - pchisq(abs(Model24$logLik[1] - Model12$logLik[1])*2, 2)
 p_12vs6 <- 1 - pchisq(abs(Model12$logLik[1] - Model6$logLik[1])*2, 2)
 
 # Check model predictions
-acrophase <- -atan(-Model24$coefficients$fixed["SinHour"]/Model24$coefficients$fixed["CosHour"])*24/(2*pi) # Acrophase
-acrophase_deg <- acrophase*180/pi # convert from radians to degrees
-peak <- -acrophase_deg/15
+bathyphase <- -atan(-Model24$coefficients$fixed["CosHour"]/Model24$coefficients$fixed["SinHour"])*24/(2*pi) # Acrophase
+bathyphase_deg <- acrophase*180/pi # convert from radians to degrees
+trough <- -bathyphase_deg/15
 amplitude <- sqrt(Model24$coefficients$fixed["SinHour"]^2 + Model24$coefficients$fixed["CosHour"]^2) # Amplitude
 
 # Plot fixed-effects prediction
@@ -298,15 +314,15 @@ plot(predict(Model24sd) ~ IL6_data$Hour[!is.na(IL6_data$IL6_sd)])
 
 # Investigate effect of sleep
 modsleep24a <- update(Model24, ~ SinHour + CosHour + TimeFromCatheter_h + Sleep)
-modsleep24b <- update(Model24, ~ SinHour + CosHour + TimeFromCatheter_h + TimeAsleep)
-modsleep24c <- update(Model24, ~ SinHour + CosHour + TimeFromCatheter_h + Sleep + TimeAsleep)
+modsleep24b <- update(Model24, ~ SinHour + CosHour + TimeFromCatheter_h + TimeAsleep + TimeAwake)
+modsleep24c <- update(Model24, ~ SinHour + CosHour + TimeFromCatheter_h + Sleep + TimeAsleep + TimeAwake)
 summary(modsleep24a)
 summary(modsleep24b)
 summary(modsleep24c)
 
 modsleep12a <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h + Sleep)
-modsleep12b <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h + TimeAsleep)
-modsleep12c <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h + Sleep + TimeAsleep)
+modsleep12b <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h + TimeAsleep + TimeAwake)
+modsleep12c <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h + Sleep + TimeAsleep + TimeAwake)
 summary(modsleep12a)
 summary(modsleep12b)
 summary(modsleep12c)
@@ -345,6 +361,8 @@ IL6ind$lnIL6 <- log(IL6ind$IL6_pgml)
 IL6ind$log2IL6 <- log2(IL6ind$IL6_pgml)
 IL6ind$log10IL6 <- log10(IL6ind$IL6_pgml)
 IL6ind$sqrtIL6 <- sqrt(IL6ind$IL6_pgml)
+
+IL6ind$Study[IL6ind$Study == "Axelsson2013"] <- "Karshikoff2015"
 
 # Inspect distributions
 density_raw <- density(IL6ind$IL6_pgml)
@@ -428,21 +446,21 @@ agg$n <- n_vec
 lo <- loess(x ~ h, weights = n, data = agg)
 lines(predict(lo) ~ agg$h, lwd = 2)
 
-with(IL6ind[IL6ind$Study == "Axelsson2013", ],
-     plot(lnIL6 ~ Hour, type = "n", main = "Axelsson 2013", bty = "n", xaxt = "n", xlab = "Time, h", ylab = "ln(IL-6, pg/ml)", cex.main = 1.5, cex.axis = 1.5, cex.lab = 1.5, xlim = c(0, 24), ylim = c(-3, 4)))
+with(IL6ind[IL6ind$Study == "Karshikoff2015", ],
+     plot(lnIL6 ~ Hour, type = "n", main = "Karshikoff 2015", bty = "n", xaxt = "n", xlab = "Time, h", ylab = "ln(IL-6, pg/ml)", cex.main = 1.5, cex.axis = 1.5, cex.lab = 1.5, xlim = c(0, 24), ylim = c(-3, 4)))
 rect(0, -5, 7, 40, col = "Misty Rose", border = NA)
 rect(23, -5, 31, 40, col = "Misty Rose", border = NA)
 axis(1, at = c(0, 6, 10, 15, 24), labels = c("00:00", "06:00", "10:00", "15:00", "24:00"), cex.axis = 1.5, cex.lab = 1.5)
-for (j in unique(IL6ind$Subject[IL6ind$Study == "Axelsson2013"])){
-  for (k in unique(IL6ind$Day[IL6ind$Study == "Axelsson2013" & IL6ind$Subject == j])){
-    with(IL6ind[IL6ind$Study == "Axelsson2013" & IL6ind$Subject == j & IL6ind$Day == k, ],
+for (j in unique(IL6ind$Subject[IL6ind$Study == "Karshikoff2015"])){
+  for (k in unique(IL6ind$Day[IL6ind$Study == "Karshikoff2015" & IL6ind$Subject == j])){
+    with(IL6ind[IL6ind$Study == "Karshikoff2015" & IL6ind$Subject == j & IL6ind$Day == k, ],
          lines(lnIL6 ~ Hour, col = "gray", type = "o"))
   }
 }
-agg <- aggregate(IL6ind$lnIL6[IL6ind$Study == "Axelsson2013"], list(h = IL6ind$Hour[IL6ind$Study == "Axelsson2013"]), mean, na.action = na.omit)
+agg <- aggregate(IL6ind$lnIL6[IL6ind$Study == "Karshikoff2015"], list(h = IL6ind$Hour[IL6ind$Study == "Karshikoff2015"]), mean, na.action = na.omit)
 n_vec <- NULL
 for (j in unique(agg$h)){
-  n <- sum(IL6ind$Hour[IL6ind$Study == "Axelsson2013"] == j)
+  n <- sum(IL6ind$Hour[IL6ind$Study == "Karshikoff2015"] == j)
   n_vec <- c(n_vec, n)
 }
 agg$n <- n_vec
@@ -644,7 +662,7 @@ Weights_prop <- prop.table(as.matrix(Weights[, 2:4]), 2)
 
 pdf("Weights_ind.pdf")
 barplot(Weights_prop, col = brewer.pal(4, "Set1"), yaxt = "n", cex.names = 1.5, names = c("n_subj", "sqrt", "n_obs"))
-text(0.2, 0.2, "Axelsson2013", pos = 4, cex = 1.3)
+text(0.2, 0.2, "Karshikoff2015", pos = 4, cex = 1.3)
 text(0.2, 0.5, "Knudsen2008", pos = 4, cex = 1.3)
 text(0.2, 0.7, "Lekander2013", pos = 4, cex = 1.3)
 text(0.2, 0.9, "Sothern1995", pos = 4, cex = 1.3)
