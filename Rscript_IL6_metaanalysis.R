@@ -225,24 +225,6 @@ points(residualsNull[, 2] ~ IL6_data$Hour24, cex = 2*sqrt(IL6_data$sqw/pi))
 lines(pred$fit~ seq(0, 24, 0.5), col = "red", lwd = 2)
 dev.off()
 
-dataforloess <- data.frame(residuals = residualsNull[, 2], Hour24 = IL6_data$Hour24, weights = IL6_data$sqw)
-lo2 <- loess(residuals ~ Hour24, data = dataforloess, weights = weights)
-pred2 <- predict(lo2, seq(0, 24, 0.5), se=TRUE)
-lines(pred2$fit~ seq(0, 24, 0.5), col = "green", lwd = 2)
-
-dataforloess <- data.frame(residuals = residualsNull[, 2], Hour24 = IL6_data$Hour24, weights = IL6_data$sqw)
-dataforloess2 <- rbind(dataforloess, dataforloess, dataforloess)
-dataforloess2$Hour24[1:789] <- dataforloess2$Hour24[1:789] - 24
-dataforloess2$Hour24[1779:2367] <- dataforloess2$Hour24[1779:2367] + 24
-lo <- loess(residuals ~ Hour24, data = dataforloess2, weights = weights, span = 0.25)
-pred <- predict(lo, seq(0, 24, 0.5), se=TRUE)
-lines(pred$fit~ seq(0, 24, 0.5), col = "red", lwd = 2)
-
-
-
-lo <- loess(residualsNull[, 2] ~ IL6_data$Hour24, weights = IL6_data$sqw)
-
-
 Model24 <- lme(lnIL6 ~ SinHour + CosHour + TimeFromCatheter_h, data = IL6_data, weights = ~ 1/sqw, random = ~ TimeFromCatheter_h|Study)
 summary(Model24)
 plot(Model24, resid(., type = "p") ~ Hour, abline = 0)
