@@ -351,6 +351,9 @@ modsleep12c <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + Tim
 summary(modsleep12a)
 summary(modsleep12b)
 summary(modsleep12c)
+logLik(modsleep12a, REML = F)
+logLik(modsleep12b, REML = F)
+logLik(modsleep12c, REML = F)
 
 p_12avs12 <- 1 - pchisq(abs(logLik(modsleep12a, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
 p_12bvs12 <- 1 - pchisq(abs(logLik(modsleep12c, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
