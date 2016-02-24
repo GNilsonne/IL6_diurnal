@@ -237,9 +237,17 @@ Model6 <- lme(lnIL6 ~ SinHour + CosHour + SinHour12 + CosHour12  + SinHour6 + Co
 summary(Model6)
 
 # Test significance
-p_24vsNull <- 1 - pchisq(abs(Model24$logLik[1] - ModelNull$logLik[1])*2, 2)
-p_24vs12 <- 1 - pchisq(abs(Model24$logLik[1] - Model12$logLik[1])*2, 2)
-p_12vs6 <- 1 - pchisq(abs(Model12$logLik[1] - Model6$logLik[1])*2, 2)
+#p_24vsNull <- 1 - pchisq(abs(Model24$logLik[1] - ModelNull$logLik[1])*2, 2)
+#p_24vs12 <- 1 - pchisq(abs(Model24$logLik[1] - Model12$logLik[1])*2, 2)
+#p_12vs6 <- 1 - pchisq(abs(Model12$logLik[1] - Model6$logLik[1])*2, 2)
+# Use log likelihood instead of restricted log likelihood
+logLik(ModelNull, REML = F)
+logLik(Model24, REML = F)
+logLik(Model12, REML = F)
+logLik(Model6, REML = F)
+p_24vsNull <- 1 - pchisq(abs(logLik(Model24, REML = F)[1] - logLik(ModelNull, REML = F)[1])*2, 2)
+p_24vs12 <- 1 - pchisq(abs(logLik(Model24, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
+p_12vs6 <- 1 - pchisq(abs(logLik(Model12, REML = F)[1] - logLik(Model6, REML = F)[1])*2, 2)
 
 # Check model predictions
 bathyphase <- -atan(-Model24$coefficients$fixed["CosHour"]/Model24$coefficients$fixed["SinHour"])*24/(2*pi) # Acrophase
@@ -321,7 +329,7 @@ sum(aggregate(n ~ Study, data = IL6_data, FUN = "max")$n) # Total number of subj
 sum(weights$Freq) # Total number of time points
 
 # Model variances
-# I think the pooint is thar higher variance may be confused for higher absolute values unless data are log-transformed
+# I think the pooint is that higher variance may be confused for higher absolute values unless data are log-transformed
 Model24sd <- lme(IL6_sd ~ SinHour + CosHour, data = IL6_data, weights = ~ 1/sqw, random = ~ 1|Study, na.action = "na.omit")
 summary(Model24sd)
 plot(predict(Model24sd) ~ IL6_data$Hour[!is.na(IL6_data$IL6_sd)])
@@ -333,6 +341,9 @@ modsleep24c <- update(Model24, ~ SinHour + CosHour + TimeFromCatheter_h + Sleep 
 summary(modsleep24a)
 summary(modsleep24b)
 summary(modsleep24c)
+logLik(modsleep24a, REML = F)
+logLik(modsleep24b, REML = F)
+logLik(modsleep24c, REML = F)
 
 modsleep12a <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h + Sleep)
 modsleep12b <- update(Model24, ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h + TimeAsleep + TimeAwake)
@@ -341,17 +352,29 @@ summary(modsleep12a)
 summary(modsleep12b)
 summary(modsleep12c)
 
-p_12avs12 <- 1 - pchisq(abs(modsleep12a$logLik[1] - Model12$logLik[1])*2, 2)
-p_12bvs12 <- 1 - pchisq(abs(modsleep12b$logLik[1] - Model12$logLik[1])*2, 2)
-p_12cvs12 <- 1 - pchisq(abs(modsleep12c$logLik[1] - Model12$logLik[1])*2, 2)
+p_12avs12 <- 1 - pchisq(abs(logLik(modsleep12a, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
+p_12bvs12 <- 1 - pchisq(abs(logLik(modsleep12c, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
+p_12cvs12 <- 1 - pchisq(abs(logLik(modsleep12c, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
 
-p_24avs12 <- 1 - pchisq(abs(modsleep24a$logLik[1] - Model12$logLik[1])*2, 2)
-p_24bvs12 <- 1 - pchisq(abs(modsleep24b$logLik[1] - Model12$logLik[1])*2, 2)
-p_24cvs12 <- 1 - pchisq(abs(modsleep24c$logLik[1] - Model12$logLik[1])*2, 2)
+p_24avs12 <- 1 - pchisq(abs(logLik(modsleep24a, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
+p_24bvs12 <- 1 - pchisq(abs(logLik(modsleep24c, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
+p_24cvs12 <- 1 - pchisq(abs(logLik(modsleep24c, REML = F)[1] - logLik(Model12, REML = F)[1])*2, 2)
 
-p_24avs24 <- 1 - pchisq(abs(modsleep24a$logLik[1] - Model24$logLik[1])*2, 2)
-p_24bvs24 <- 1 - pchisq(abs(modsleep24b$logLik[1] - Model24$logLik[1])*2, 2)
-p_24cvs24 <- 1 - pchisq(abs(modsleep24c$logLik[1] - Model24$logLik[1])*2, 2)
+p_24avs24 <- 1 - pchisq(abs(logLik(modsleep24a, REML = F)[1] - logLik(Model24, REML = F)[1])*2, 2)
+p_24bvs24 <- 1 - pchisq(abs(logLik(modsleep24c, REML = F)[1] - logLik(Model24, REML = F)[1])*2, 2)
+p_24cvs24 <- 1 - pchisq(abs(logLik(modsleep24c, REML = F)[1] - logLik(Model24, REML = F)[1])*2, 2)
+
+#p_12avs12 <- 1 - pchisq(abs(modsleep12a$logLik[1] - Model12$logLik[1])*2, 2)
+#p_12bvs12 <- 1 - pchisq(abs(modsleep12b$logLik[1] - Model12$logLik[1])*2, 2)
+#p_12cvs12 <- 1 - pchisq(abs(modsleep12c$logLik[1] - Model12$logLik[1])*2, 2)
+
+#p_24avs12 <- 1 - pchisq(abs(modsleep24a$logLik[1] - Model12$logLik[1])*2, 2)
+#p_24bvs12 <- 1 - pchisq(abs(modsleep24b$logLik[1] - Model12$logLik[1])*2, 2)
+#p_24cvs12 <- 1 - pchisq(abs(modsleep24c$logLik[1] - Model12$logLik[1])*2, 2)
+
+#p_24avs24 <- 1 - pchisq(abs(modsleep24a$logLik[1] - Model24$logLik[1])*2, 2)
+#p_24bvs24 <- 1 - pchisq(abs(modsleep24b$logLik[1] - Model24$logLik[1])*2, 2)
+#p_24cvs24 <- 1 - pchisq(abs(modsleep24c$logLik[1] - Model24$logLik[1])*2, 2)
 
 
 # Investigate time from catheterization effect
