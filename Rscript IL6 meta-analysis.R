@@ -1,6 +1,8 @@
 ##########################################################
 # Script to perform meta-analysis on plasma IL-6 levels
 # Gustav Nilsonne and Michael Ingre 2014
+#
+# NB! Deprecated version. Use instead Rscript_IL6_metaanalysis.R.
 ##########################################################
 
 ###########################
