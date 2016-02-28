@@ -250,10 +250,10 @@ p_24vs12 <- 1 - pchisq(abs(logLik(Model24, REML = F)[1] - logLik(Model12, REML =
 p_12vs6 <- 1 - pchisq(abs(logLik(Model12, REML = F)[1] - logLik(Model6, REML = F)[1])*2, 2)
 
 # Check model predictions
-bathyphase <- -atan(-Model24$coefficients$fixed["CosHour"]/Model24$coefficients$fixed["SinHour"])*24/(2*pi) # Acrophase
-bathyphase_deg <- acrophase*180/pi # convert from radians to degrees
-trough <- -bathyphase_deg/15
-amplitude <- sqrt(Model24$coefficients$fixed["SinHour"]^2 + Model24$coefficients$fixed["CosHour"]^2) # Amplitude
+#bathyphase <- -atan(-Model24$coefficients$fixed["CosHour"]/Model24$coefficients$fixed["SinHour"])*24/(2*pi) # Acrophase
+#bathyphase_deg <- acrophase*180/pi # convert from radians to degrees
+#trough <- -bathyphase_deg/15
+#amplitude <- sqrt(Model24$coefficients$fixed["SinHour"]^2 + Model24$coefficients$fixed["CosHour"]^2) # Amplitude
 
 # Plot fixed-effects prediction
 Intercept <- Model24$coefficients$fixed["(Intercept)"]
@@ -648,8 +648,8 @@ lines(Intercept12 + sinPred24 + cosPred24, lwd = 2, col = "red")
 #lines(Intercept12 + sinPred12a + cosPred12a + sinPred12b + cosPred12b, lwd = 2, col = "blue")
 #legend("bottomright", lwd = 2, col = c("black", "gray", "red", "blue"), legend = c("loess, span 0.2", "loess, span 0.4", "24 h period", "24 and 12 h period"), bty = "n", cex = 1.5)
 legend("bottomleft", cex = 1.5, bty = "n", 
-       legend = c(paste("p =", round(p_ind24, 3), "for 24 vs null"),
-                  paste("p =", round(p_ind24_12, 3), "for 24 vs 24 and 12")))
+       legend = c(paste("p =", round(p_ind24vsNull, 3), "for 24 vs null"),
+                  paste("p =", round(p_ind24vs12, 3), "for 24 vs 24 and 12")))
 
 plot(exp(Intercept12 + sinPred12a + cosPred12a + sinPred12b + cosPred12b), 
      bty = "n",
