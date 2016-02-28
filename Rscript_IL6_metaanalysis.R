@@ -572,7 +572,7 @@ while (max(IL6ind$Hour24) > 24){
 # Build models
 Modelind_null <- lme(lnIL6 ~ TimeFromCatheter_h, data = IL6ind, weights = ~ 1/sqw, random = ~ TimeFromCatheter_h|Study/Subject)
 Modelind_24 <- lme(lnIL6 ~ SinHour + CosHour + TimeFromCatheter_h, data = IL6ind, weights = ~ 1/sqw, random = ~ TimeFromCatheter_h|Study/Subject)
-Modelind_12 <- lme(lnIL6 ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h, data = IL6ind], weights = ~ 1/sqw, random = ~ TimeFromCatheter_h|Study/Subject)
+Modelind_12 <- lme(lnIL6 ~ SinHour + CosHour + SinHour12 + CosHour12 + TimeFromCatheter_h, data = IL6ind, weights = ~ 1/sqw, random = ~ TimeFromCatheter_h|Study/Subject)
 
 summary(Modelind_null)
 summary(Modelind_24)
@@ -707,3 +707,4 @@ text(0.2, 0.5, "Knudsen2008", pos = 4, cex = 1.3)
 text(0.2, 0.7, "Lekander2013", pos = 4, cex = 1.3)
 text(0.2, 0.9, "Sothern1995", pos = 4, cex = 1.3)
 dev.off()
+
