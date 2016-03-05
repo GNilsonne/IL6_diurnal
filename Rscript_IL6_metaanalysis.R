@@ -250,10 +250,17 @@ p_24vs12 <- 1 - pchisq(abs(logLik(Model24, REML = F)[1] - logLik(Model12, REML =
 p_12vs6 <- 1 - pchisq(abs(logLik(Model12, REML = F)[1] - logLik(Model6, REML = F)[1])*2, 2)
 
 # Check model predictions
-#bathyphase <- -atan(-Model24$coefficients$fixed["CosHour"]/Model24$coefficients$fixed["SinHour"])*24/(2*pi) # Acrophase
-#bathyphase_deg <- acrophase*180/pi # convert from radians to degrees
-#trough <- -bathyphase_deg/15
-#amplitude <- sqrt(Model24$coefficients$fixed["SinHour"]^2 + Model24$coefficients$fixed["CosHour"]^2) # Amplitude
+acroPhase <- function(sin, cos) {
+  if (is.na(sin) | is.na(cos)) { return(NA) }
+  if (cos >= 0 & sin  > 0) {K=0 }
+  if (cos <  0 & sin >= 0) {K=12} 
+  if (cos <= 0 & sin  < 0) {K=12} 
+  if (cos >  0 & sin <= 0) {K=24} 
+  return(atan(sin/cos)/(2*pi)*24 + K)
+}
+
+acroPhase(sin = Model24$coefficients$fixed["SinHour"], cos = Model24$coefficients$fixed["CosHour"])
+amplitude <- sqrt(Model24$coefficients$fixed["SinHour"]^2 + Model24$coefficients$fixed["CosHour"]^2) # Amplitude
 
 # Plot fixed-effects prediction
 Intercept <- Model24$coefficients$fixed["(Intercept)"]
