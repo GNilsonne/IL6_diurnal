@@ -7,9 +7,10 @@ Data from studies where individual participant data were available
 - Sothern1995IndividualData.csv. These data were estimated from the published paper.
 - Knudsen1998individual.csv. These data were estimated from the published paper.
 - Endotoxin_cytokine_data_140530.csv. These data were contributed by John Axelsson and are identical to data puplished previously in (add ref).
-- psd_shr_ils.dta. These data were contributed by Mats Lekander and have been previously described in (add ref).
+- psd_shr_ils.dta. These data were contributed by Mats Lekander and have been previously described in Karshikoff et al. 2015, doi: 10.1016/j.bbi.2014.11.014.
 
 Analysis code:
-Rscript IL-6 meta-analysis.R
+Rscript_IL6_metaanalysis.R
+(Rscript IL6 meta-analysis.R is old file left to enable tracing of version history.)
 
 For further details, see (add ref to preprint).
