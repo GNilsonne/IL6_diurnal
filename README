@@ -6,7 +6,7 @@ Data from studies where individual participant data were not available:
 Data from studies where individual participant data were available
 - Sothern1995IndividualData.csv. These data were estimated from the published paper.
 - Knudsen1998individual.csv. These data were estimated from the published paper.
-- Endotoxin_cytokine_data_140530.csv. These data were contributed by John Axelsson and are identical to data puplished previously in (add ref).
+- Endotoxin_cytokine_data_140530.csv. These data were contributed by John Axelsson and are identical to data puplished previously in Lekander et al. 2013, doi: 10.1016/j.bbi.2013.06.005.
 - psd_shr_ils.dta. These data were contributed by Mats Lekander and have been previously described in Karshikoff et al. 2015, doi: 10.1016/j.bbi.2014.11.014.
 
 Analysis code:
