@@ -336,7 +336,7 @@ sum(aggregate(n ~ Study, data = IL6_data, FUN = "max")$n) # Total number of subj
 sum(weights$Freq) # Total number of time points
 
 # Model variances
-# I think the pooint is that higher variance may be confused for higher absolute values unless data are log-transformed
+# I think the point is that higher variance may be confused for higher absolute values unless data are log-transformed
 Model24sd <- lme(IL6_sd ~ SinHour + CosHour, data = IL6_data, weights = ~ 1/sqw, random = ~ 1|Study, na.action = "na.omit")
 summary(Model24sd)
 plot(predict(Model24sd) ~ IL6_data$Hour[!is.na(IL6_data$IL6_sd)])
@@ -714,4 +714,3 @@ text(0.2, 0.5, "Knudsen2008", pos = 4, cex = 1.3)
 text(0.2, 0.7, "Lekander2013", pos = 4, cex = 1.3)
 text(0.2, 0.9, "Sothern1995", pos = 4, cex = 1.3)
 dev.off()
-
