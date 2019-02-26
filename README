@@ -1,5 +1,8 @@
 This repository contains the following files:
 
+A log of retrieved search records from PubMed 2016-01-03
+- pubmed_result_160103.txt
+
 Data from studies where individual participant data were not available:
 - IL6data.csv. These data were all estimated from the respective published papers.
 
@@ -13,4 +16,4 @@ Analysis code:
 Rscript_IL6_metaanalysis.R
 (Rscript IL6 meta-analysis.R is old file left to enable tracing of version history.)
 
-For further details, see (add ref to preprint).
+For further details, see Nilsonne et al. 2016: http://dx.doi.org/10.1371/journal.pone.0165799.
